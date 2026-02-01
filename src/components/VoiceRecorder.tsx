@@ -31,10 +31,39 @@ export function VoiceRecorder({ onRecordingComplete, onRemove, existingAudioUrl 
     };
   }, [audioUrl, existingAudioUrl]);
 
+  const getSupportedMimeType = () => {
+    const types = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/ogg;codecs=opus',
+      'audio/wav',
+      ''  // Empty string = browser default
+    ];
+    for (const type of types) {
+      if (type === '' || MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+    return '';
+  };
+
   const startRecording = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        } 
+      });
+      
+      const mimeType = getSupportedMimeType();
+      const options: MediaRecorderOptions = {};
+      if (mimeType) {
+        options.mimeType = mimeType;
+      }
+      
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -45,14 +74,15 @@ export function VoiceRecorder({ onRecordingComplete, onRemove, existingAudioUrl 
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const actualMimeType = mediaRecorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: actualMimeType });
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
         onRecordingComplete(audioBlob);
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000); // Collect data every second for better mobile support
       setIsRecording(true);
       setRecordingTime(0);
 
@@ -67,6 +97,7 @@ export function VoiceRecorder({ onRecordingComplete, onRemove, existingAudioUrl 
       }, 1000);
     } catch (error) {
       console.error('Error accessing microphone:', error);
+      alert('Could not access microphone. Please allow microphone permission.');
     }
   }, [onRecordingComplete]);
 
