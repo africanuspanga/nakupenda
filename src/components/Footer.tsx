@@ -6,23 +6,21 @@ export function Footer() {
   const { language, setShowLanguageModal } = useLanguage();
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 py-3 px-4 text-center bg-gradient-to-t from-cream via-cream to-transparent">
-      <div className="flex items-center justify-center gap-2 text-text-muted text-sm font-body">
-        <span>Built by</span>
+    <footer className="fixed bottom-0 left-0 right-0 py-3 px-4 bg-cream/95 backdrop-blur-sm border-t border-cream-light/50">
+      <div className="flex items-center justify-between max-w-md mx-auto">
         <a
           href="https://driftmark.co.tz"
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-burgundy hover:text-burgundy/80 transition-colors"
+          className="text-xs font-body text-text-muted hover:text-burgundy transition-colors"
         >
-          Driftmark
+          Built by <span className="font-semibold text-burgundy">Driftmark</span>
         </a>
-        <span className="mx-2">•</span>
         <button
           onClick={() => setShowLanguageModal(true)}
-          className="hover:text-burgundy transition-colors"
+          className="text-sm hover:scale-110 transition-transform"
         >
-          {language === 'en' ? '🇬🇧 EN' : '🇹🇿 SW'}
+          {language === 'en' ? '🇬🇧' : '🇹🇿'}
         </button>
       </div>
     </footer>

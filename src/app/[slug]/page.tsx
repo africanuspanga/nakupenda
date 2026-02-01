@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { LoveConfetti } from '@/components/Confetti';
+import { AudioPlayer } from '@/components/AudioPlayer';
 import { getThemeStyles, type LetterTheme } from '@/components/ThemeSelector';
 import type { Letter, LetterAttachment } from '@/lib/supabase';
 
@@ -129,7 +130,17 @@ export default function ViewLetterPage() {
           {state !== 'open' ? (
             <motion.div
               key="envelope"
-              initial={{ opacity: 1 }}
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ 
+                y: state === 'closed' ? [0, -8, 0] : 0,
+              }}
+              transition={{
+                y: {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                },
+              }}
               exit={{ opacity: 0, scale: 0.9 }}
               className="cursor-pointer"
               onClick={handleClick}
@@ -231,9 +242,11 @@ export default function ViewLetterPage() {
                 </p>
 
                 {/* Photos */}
-                {attachments.length > 0 && (
+                {attachments.filter(a => a.file_type && !a.file_type.startsWith('audio/')).length > 0 && (
                   <div className="mt-6 grid grid-cols-2 gap-3">
-                    {attachments.map((attachment, index) => (
+                    {attachments
+                      .filter(a => a.file_type && !a.file_type.startsWith('audio/'))
+                      .map((attachment, index) => (
                       <div
                         key={attachment.id}
                         className="relative aspect-square rounded-lg overflow-hidden shadow-md bg-cream-light"
@@ -247,6 +260,13 @@ export default function ViewLetterPage() {
                       </div>
                     ))}
                   </div>
+                )}
+
+                {/* Voice Note */}
+                {attachments.find(a => a.file_type?.startsWith('audio/')) && (
+                  <AudioPlayer 
+                    src={attachments.find(a => a.file_type?.startsWith('audio/'))!.file_url} 
+                  />
                 )}
               </div>
             </motion.div>

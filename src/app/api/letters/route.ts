@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const message = formData.get('message') as string;
     const senderName = formData.get('senderName') as string | null;
     const photos = formData.getAll('photos') as File[];
+    const voiceNote = formData.get('voiceNote') as File | null;
 
     if (!recipientName || !message) {
       return NextResponse.json(
@@ -84,6 +85,38 @@ export async function POST(request: NextRequest) {
         if (attachmentError) {
           console.error('Error saving attachment record:', attachmentError);
         }
+      }
+    }
+
+    // Upload voice note if any
+    let voiceNoteUrl = null;
+    if (voiceNote && voiceNote.size > 0) {
+      const fileName = `${letter.id}/voice-note.webm`;
+      const arrayBuffer = await voiceNote.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+
+      const { error: uploadError } = await supabase.storage
+        .from('letter-attachments')
+        .upload(fileName, buffer, {
+          contentType: 'audio/webm',
+          upsert: true,
+        });
+
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage
+          .from('letter-attachments')
+          .getPublicUrl(fileName);
+        voiceNoteUrl = urlData.publicUrl;
+
+        // Save voice note as attachment with special type
+        await supabase.from('letter_attachments').insert({
+          letter_id: letter.id,
+          file_url: voiceNoteUrl,
+          file_type: 'audio/webm',
+          display_order: 999, // Voice note always last
+        });
+      } else {
+        console.error('Error uploading voice note:', uploadError);
       }
     }
 

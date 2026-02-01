@@ -139,6 +139,22 @@ export const translations: Translations = {
     en: 'Add Photos',
     sw: 'Weka Picha',
   },
+  addVoiceNote: {
+    en: 'Add voice note',
+    sw: 'Weka sauti',
+  },
+  stopRecording: {
+    en: 'Stop',
+    sw: 'Simama',
+  },
+  voiceNote: {
+    en: 'Voice note attached',
+    sw: 'Sauti imeambatishwa',
+  },
+  voiceMessage: {
+    en: 'Voice message',
+    sw: 'Ujumbe wa sauti',
+  },
   // Errors
   pleaseWriteMessage: {
     en: 'Please write a message',

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, IconButton } from '@/components/Button';
 import { ThemeSelector, getThemeStyles, type LetterTheme } from '@/components/ThemeSelector';
+import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useLanguage } from '@/context/LanguageContext';
 import toast from 'react-hot-toast';
 
@@ -23,6 +24,7 @@ export default function CreatePage() {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [theme, setTheme] = useState<LetterTheme>('classic');
+  const [voiceNote, setVoiceNote] = useState<Blob | null>(null);
   
   const themeStyles = getThemeStyles(theme);
 
@@ -83,6 +85,10 @@ export default function CreatePage() {
       photos.forEach((photo) => {
         formData.append('photos', photo);
       });
+      
+      if (voiceNote) {
+        formData.append('voiceNote', voiceNote, 'voice-note.webm');
+      }
 
       const response = await fetch('/api/letters', {
         method: 'POST',
@@ -101,7 +107,7 @@ export default function CreatePage() {
       setStep('recipient');
       setIsSending(false);
     }
-  }, [recipientName, message, photos, router, t, theme]);
+  }, [recipientName, message, photos, router, t, theme, voiceNote]);
 
   return (
     <main className="min-h-screen flex flex-col px-3 sm:px-4 py-4 sm:py-6">
@@ -150,24 +156,24 @@ export default function CreatePage() {
             </div>
 
             {/* Letter Paper */}
-            <div className={`flex-1 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 max-w-md mx-auto w-full ${themeStyles.paper} ${themeStyles.border}`}>
+            <div className={`flex-1 rounded-lg shadow-xl p-5 sm:p-6 md:p-8 max-w-md mx-auto w-full ${themeStyles.paper} ${themeStyles.border}`}>
               <div className="mb-4">
-                <span className={`font-script text-xl sm:text-2xl md:text-3xl ${themeStyles.accent}`}>{t('dear')} </span>
+                <span className={`font-script text-2xl sm:text-3xl md:text-4xl ${themeStyles.accent}`}>{t('dear')} </span>
                 <input
                   type="text"
                   value={recipientName}
                   onChange={(e) => setRecipientName(e.target.value)}
                   placeholder={t('name')}
-                  className={`font-script text-xl sm:text-2xl md:text-3xl ${themeStyles.text} bg-transparent border-none outline-none w-24 sm:w-32 md:w-36 placeholder:opacity-50`}
+                  className={`font-script text-2xl sm:text-3xl md:text-4xl ${themeStyles.text} bg-transparent border-none outline-none w-28 sm:w-36 md:w-44 placeholder:opacity-50`}
                 />
-                <span className={`font-script text-xl sm:text-2xl md:text-3xl ${themeStyles.text}`}>,</span>
+                <span className={`font-script text-2xl sm:text-3xl md:text-4xl ${themeStyles.text}`}>,</span>
               </div>
 
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={t('writeMessage')}
-                className={`w-full min-h-[180px] sm:min-h-[200px] font-body ${themeStyles.text} text-sm sm:text-base md:text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:opacity-40`}
+                className={`w-full min-h-[200px] sm:min-h-[250px] font-body ${themeStyles.text} text-base sm:text-lg md:text-xl leading-relaxed bg-transparent border-none outline-none resize-none placeholder:opacity-40`}
               />
 
               {/* Photo Gallery */}
@@ -191,6 +197,12 @@ export default function CreatePage() {
                   ))}
                 </div>
               )}
+
+              {/* Voice Recorder */}
+              <VoiceRecorder
+                onRecordingComplete={(blob) => setVoiceNote(blob)}
+                onRemove={() => setVoiceNote(null)}
+              />
             </div>
 
             {/* Decorative envelope */}
