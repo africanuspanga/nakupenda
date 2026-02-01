@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nakupenda 💌
+
+**Create beautiful letters for your loved ones**
+
+A romantic digital letter-writing platform that brings back the nostalgic experience of handwritten love letters in a modern, shareable format.
+
+**Domain:** nakupenda.co.tz  
+**Launch Target:** Valentine's Season 2026
+
+## Features
+
+- ✉️ Beautiful envelope opening animations
+- 📝 Elegant letter composition with script fonts
+- 📷 Photo attachments (up to 5 per letter)
+- 🔗 Shareable unique links
+- 📱 Mobile-first design
+- 🎨 Premium romantic aesthetic
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Styling:** Tailwind CSS
+- **Database:** Supabase (PostgreSQL)
+- **Storage:** Supabase Storage
+- **Animations:** Framer Motion
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Set Up Supabase
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run this SQL in the SQL Editor:
+
+```sql
+-- Letters table
+CREATE TABLE letters (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug VARCHAR(12) UNIQUE NOT NULL,
+  recipient_name VARCHAR(100) NOT NULL,
+  message TEXT NOT NULL,
+  sender_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT NOW(),
+  opened_at TIMESTAMP,
+  open_count INTEGER DEFAULT 0
+);
+
+-- Letter attachments (photos)
+CREATE TABLE letter_attachments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  letter_id UUID REFERENCES letters(id) ON DELETE CASCADE,
+  file_url TEXT NOT NULL,
+  file_type VARCHAR(50),
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Create storage bucket for photos
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('letter-attachments', 'letter-attachments', true);
+
+-- Allow public access to attachments
+CREATE POLICY "Public Access" ON storage.objects 
+FOR SELECT USING (bucket_id = 'letter-attachments');
+
+CREATE POLICY "Allow uploads" ON storage.objects 
+FOR INSERT WITH CHECK (bucket_id = 'letter-attachments');
+```
+
+### 3. Configure Environment Variables
+
+Create `.env.local` in the project root:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_BASE_URL=https://nakupenda.co.tz
+```
+
+Find these values in Supabase: **Settings → API**
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── page.tsx              # Landing page
+│   ├── create/
+│   │   ├── page.tsx          # Letter composition
+│   │   └── share/[slug]/     # Share page
+│   ├── open/page.tsx         # Open letter by code
+│   ├── [slug]/page.tsx       # View letter (recipient)
+│   └── api/letters/          # API routes
+├── components/
+│   ├── Button.tsx
+│   ├── Envelope.tsx
+│   └── LetterPaper.tsx
+└── lib/
+    ├── supabase.ts
+    └── utils.ts
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+Deploy to Vercel:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+vercel
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Set environment variables in Vercel dashboard.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
