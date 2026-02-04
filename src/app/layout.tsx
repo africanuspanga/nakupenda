@@ -25,10 +25,10 @@ export const metadata: Metadata = {
   keywords: ["love letters", "digital letters", "romantic", "Valentine", "Tanzania", "barua za mapenzi", "Nakupenda"],
   icons: {
     icon: [
-      { url: '/heart.png', type: 'image/png' },
+      { url: '/heart-icon.svg', type: 'image/svg+xml' },
     ],
-    apple: '/heart.png',
-    shortcut: '/heart.png',
+    apple: '/heart-icon.svg',
+    shortcut: '/heart-icon.svg',
   },
   openGraph: {
     title: "Nakupenda - Digital Love Letters",
