@@ -8,7 +8,6 @@ import { Button, IconButton } from '@/components/Button';
 import { ThemeSelector, getThemeStyles, type LetterTheme } from '@/components/ThemeSelector';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useLanguage } from '@/context/LanguageContext';
-import { compressImage, blobToFile } from '@/lib/imageCompression';
 import toast from 'react-hot-toast';
 
 type CreateStep = 'compose' | 'recipient' | 'sending';
@@ -33,7 +32,7 @@ export default function CreatePage() {
     fileInputRef.current?.click();
   }, []);
 
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -44,31 +43,16 @@ export default function CreatePage() {
     }
     
     const newFiles = Array.from(files).slice(0, remainingSlots);
-    const compressingToast = toast.loading(t('compressingPhotos'));
 
-    try {
-      for (const file of newFiles) {
-        if (file.size > 10 * 1024 * 1024) {
-          toast.dismiss(compressingToast);
-          toast.error(t('photoTooLarge'));
-          continue;
-        }
-        
-        // Compress the image
-        const compressedBlob = await compressImage(file, 1200, 0.8);
-        const compressedFile = blobToFile(compressedBlob, file.name.replace(/\.[^/.]+$/, '') + '.jpg', 'image/jpeg');
-        
-        const url = URL.createObjectURL(compressedFile);
-        setPhotos((prev) => [...prev, compressedFile]);
-        setPhotoUrls((prev) => [...prev, url]);
+    newFiles.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(t('photoTooLarge'));
+        return;
       }
-      toast.dismiss(compressingToast);
-      toast.success(t('photosAdded'));
-    } catch (error) {
-      toast.dismiss(compressingToast);
-      toast.error(t('failedToProcessPhoto'));
-      console.error('Error compressing image:', error);
-    }
+      const url = URL.createObjectURL(file);
+      setPhotos((prev) => [...prev, file]);
+      setPhotoUrls((prev) => [...prev, url]);
+    });
 
     e.target.value = '';
   }, [photos.length, t]);
