@@ -113,51 +113,51 @@ export async function POST(request: NextRequest) {
       } else {
         // Determine file extension based on MIME type
         const mimeType = voiceNote.type || 'audio/webm';
-      let fileExt = 'webm';
-      if (mimeType.includes('mp4') || mimeType.includes('m4a')) {
-        fileExt = 'mp4';
-      } else if (mimeType.includes('ogg')) {
-        fileExt = 'ogg';
-      } else if (mimeType.includes('wav')) {
-        fileExt = 'wav';
-      }
-      
-      const fileName = `${letter.id}/voice-note.${fileExt}`;
-      const arrayBuffer = await voiceNote.arrayBuffer();
-      const buffer = new Uint8Array(arrayBuffer);
-
-      const { error: uploadError } = await supabase.storage
-        .from('letter-attachments')
-        .upload(fileName, buffer, {
-          contentType: mimeType,
-          upsert: true,
-        });
-
-      if (uploadError) {
-        console.error('[API] Error uploading voice note:', uploadError);
-      } else {
-        console.log('[API] Voice note uploaded successfully');
+        let fileExt = 'webm';
+        if (mimeType.includes('mp4') || mimeType.includes('m4a')) {
+          fileExt = 'mp4';
+        } else if (mimeType.includes('ogg')) {
+          fileExt = 'ogg';
+        } else if (mimeType.includes('wav')) {
+          fileExt = 'wav';
+        }
         
-        const { data: urlData } = supabase.storage
+        const fileName = `${letter.id}/voice-note.${fileExt}`;
+        const arrayBuffer = await voiceNote.arrayBuffer();
+        const buffer = new Uint8Array(arrayBuffer);
+
+        const { error: uploadError } = await supabase.storage
           .from('letter-attachments')
-          .getPublicUrl(fileName);
-        voiceNoteUrl = urlData.publicUrl;
+          .upload(fileName, buffer, {
+            contentType: mimeType,
+            upsert: true,
+          });
 
-        // Save voice note as attachment with audio type
-        const { error: voiceAttachmentError } = await supabase.from('letter_attachments').insert({
-          letter_id: letter.id,
-          file_url: voiceNoteUrl,
-          file_type: mimeType,
-          display_order: 999, // Voice note always last
-        });
-        
-        if (voiceAttachmentError) {
-          console.error('[API] Error saving voice note attachment:', voiceAttachmentError);
+        if (uploadError) {
+          console.error('[API] Error uploading voice note:', uploadError);
         } else {
-          console.log('[API] Voice note attachment record saved');
+          console.log('[API] Voice note uploaded successfully');
+          
+          const { data: urlData } = supabase.storage
+            .from('letter-attachments')
+            .getPublicUrl(fileName);
+          voiceNoteUrl = urlData.publicUrl;
+
+          // Save voice note as attachment with audio type
+          const { error: voiceAttachmentError } = await supabase.from('letter_attachments').insert({
+            letter_id: letter.id,
+            file_url: voiceNoteUrl,
+            file_type: mimeType,
+            display_order: 999, // Voice note always last
+          });
+          
+          if (voiceAttachmentError) {
+            console.error('[API] Error saving voice note attachment:', voiceAttachmentError);
+          } else {
+            console.log('[API] Voice note attachment record saved');
+          }
         }
       }
-    }
     }
 
     const duration = Date.now() - startTime;
