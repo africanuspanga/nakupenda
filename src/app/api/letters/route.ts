@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
       if (voiceNote.size > MAX_VOICE_SIZE) {
         console.error(`[API] Voice note too large: ${voiceNote.size} bytes`);
       } else {
-      // Determine file extension based on MIME type
-      const mimeType = voiceNote.type || 'audio/webm';
+        // Determine file extension based on MIME type
+        const mimeType = voiceNote.type || 'audio/webm';
       let fileExt = 'webm';
       if (mimeType.includes('mp4') || mimeType.includes('m4a')) {
         fileExt = 'mp4';
