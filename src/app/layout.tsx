@@ -24,8 +24,13 @@ export const metadata: Metadata = {
   description: "Create and share beautiful digital love letters with your special someone. Tengeneza na ushiriki barua za mapenzi na mpenzi wako. A romantic way to express your feelings.",
   keywords: ["love letters", "digital letters", "romantic", "Valentine", "Tanzania", "barua za mapenzi", "Nakupenda"],
   icons: {
-    icon: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: '/favicon.png',
+    shortcut: '/favicon.png',
   },
   openGraph: {
     title: "Nakupenda - Digital Love Letters",
