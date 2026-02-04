@@ -22,7 +22,7 @@ export function VoiceRecorder({ onRecordingComplete, onRemove, existingAudioUrl 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const MAX_DURATION = 60; // 60 seconds max
+  const MAX_DURATION = 30; // 30 seconds max
 
   useEffect(() => {
     return () => {

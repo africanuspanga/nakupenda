@@ -25,12 +25,10 @@ export const metadata: Metadata = {
   keywords: ["love letters", "digital letters", "romantic", "Valentine", "Tanzania", "barua za mapenzi", "Nakupenda"],
   icons: {
     icon: [
-      { url: '/favicon.ico', type: 'image/x-icon' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.png', type: 'image/png' },
+      { url: '/heart-icon.svg', type: 'image/svg+xml' },
     ],
-    apple: '/favicon.png',
-    shortcut: '/favicon.png',
+    apple: '/heart-icon.svg',
+    shortcut: '/heart-icon.svg',
   },
   openGraph: {
     title: "Nakupenda - Digital Love Letters",
@@ -38,6 +36,20 @@ export const metadata: Metadata = {
     url: "https://nakupenda.co.tz",
     siteName: "Nakupenda",
     type: "website",
+    images: [
+      {
+        url: '/heart-icon.svg',
+        width: 1200,
+        height: 630,
+        alt: 'Nakupenda - Digital Love Letters',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Nakupenda - Digital Love Letters",
+    description: "Create beautiful letters for your loved ones | Waandikie wapendwa wako barua za kipekee",
+    images: ['/heart-icon.svg'],
   },
 };
 

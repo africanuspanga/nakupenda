@@ -8,6 +8,7 @@ import { Button, IconButton } from '@/components/Button';
 import { ThemeSelector, getThemeStyles, type LetterTheme } from '@/components/ThemeSelector';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useLanguage } from '@/context/LanguageContext';
+import { compressImage, blobToFile } from '@/lib/imageCompression';
 import toast from 'react-hot-toast';
 
 type CreateStep = 'compose' | 'recipient' | 'sending';
@@ -32,22 +33,42 @@ export default function CreatePage() {
     fileInputRef.current?.click();
   }, []);
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
-    const remainingSlots = 5 - photos.length;
+    const remainingSlots = 2 - photos.length;
+    if (remainingSlots <= 0) {
+      toast.error(t('maxPhotosReached'));
+      return;
+    }
+    
     const newFiles = Array.from(files).slice(0, remainingSlots);
+    const compressingToast = toast.loading(t('compressingPhotos'));
 
-    newFiles.forEach((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(t('photoTooLarge'));
-        return;
+    try {
+      for (const file of newFiles) {
+        if (file.size > 10 * 1024 * 1024) {
+          toast.dismiss(compressingToast);
+          toast.error(t('photoTooLarge'));
+          continue;
+        }
+        
+        // Compress the image
+        const compressedBlob = await compressImage(file, 1200, 0.8);
+        const compressedFile = blobToFile(compressedBlob, file.name.replace(/\.[^/.]+$/, '') + '.jpg', 'image/jpeg');
+        
+        const url = URL.createObjectURL(compressedFile);
+        setPhotos((prev) => [...prev, compressedFile]);
+        setPhotoUrls((prev) => [...prev, url]);
       }
-      const url = URL.createObjectURL(file);
-      setPhotos((prev) => [...prev, file]);
-      setPhotoUrls((prev) => [...prev, url]);
-    });
+      toast.dismiss(compressingToast);
+      toast.success(t('photosAdded'));
+    } catch (error) {
+      toast.dismiss(compressingToast);
+      toast.error(t('failedToProcessPhoto'));
+      console.error('Error compressing image:', error);
+    }
 
     e.target.value = '';
   }, [photos.length, t]);
@@ -132,13 +153,13 @@ export default function CreatePage() {
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <IconButton onClick={handleAddPhoto} disabled={photos.length >= 5}>
+                <IconButton onClick={handleAddPhoto} disabled={photos.length >= 2}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                 </IconButton>
-                <span className="text-sm text-text-muted font-body">{t('addPhotos')}</span>
+                <span className="text-sm text-text-muted font-body">{photos.length}/2 {t('addPhotos')}</span>
               </div>
               <Button
                 variant="primary"

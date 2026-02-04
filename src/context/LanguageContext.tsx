@@ -181,8 +181,24 @@ export const translations: Translations = {
     sw: 'Imeshindwa kunakili',
   },
   photoTooLarge: {
-    en: 'Photo must be less than 5MB',
-    sw: 'Picha lazima iwe chini ya 5MB',
+    en: 'Photo too large (max 10MB)',
+    sw: 'Picha kubwa sana (max 10MB)',
+  },
+  maxPhotosReached: {
+    en: 'Maximum 2 photos allowed',
+    sw: 'Picha 2 tu zinaruhusiwa',
+  },
+  compressingPhotos: {
+    en: 'Preserving your memories...',
+    sw: 'Inahifadhi kumbukumbu zako...',
+  },
+  photosAdded: {
+    en: 'Memories captured',
+    sw: 'Kumbukumbu zimehifadhiwa',
+  },
+  failedToProcessPhoto: {
+    en: 'Failed to process photo',
+    sw: 'Imeshindwa kuchakata picha',
   },
 };
 
